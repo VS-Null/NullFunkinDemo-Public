@@ -1,0 +1,46 @@
+name: HTML5 Build CI
+
+on:
+  # I not want build every push and pull requests. (for now) - mcagabe19
+  # push:
+    # branches: [ main ]
+  # pull_request:
+    # branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  HTML5:
+    runs-on: ubuntu-${{ matrix.version }}
+    strategy:
+      matrix:
+        build: [release]
+        version: [20.04]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.2.0
+      - name: Install Libraries
+        run: |
+          wget http://archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi6_3.2.1-8_amd64.deb && sudo apt install ./libffi6_3.2.1-8_amd64.deb
+          haxelib setup ~/haxelib
+          haxelib install lime 7.9.0
+          haxelib install openfl 9.1.0
+          haxelib --never install flixel 4.11.0
+          haxelib install flixel-ui 2.5.5
+          haxelib install flixel-addons 2.11.0
+          haxelib install hscript 2.5.0
+      - name: Build
+        run: haxelib run lime build html5 -${{ matrix.build }}
+      - name: Publish Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: buildHTML5-${{ matrix.build }}
+          path: 'export/${{ matrix.build }}/html5/bin'
+      - name: Publish Artifact (Only JS)
+        uses: actions/upload-artifact@main
+        with:
+          name: onlyJS-${{ matrix.build }}
+          path: 'export/${{ matrix.build }}/html5/bin/*.js'

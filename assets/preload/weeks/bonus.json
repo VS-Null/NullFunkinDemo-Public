@@ -1,0 +1,22 @@
+{
+	"songs": [
+		["OG", "null", [32, 32, 32]],
+		["Null", "null", [32, 32, 32]]
+	],
+
+	"weekCharacters": [
+		"",
+		"",
+		""
+	],
+	"weekBackground": "stage",
+	"difficulties": "Hard",
+
+	"storyName": "",
+	"weekBefore": "null",
+	"weekName": "Bonus",
+	"startUnlocked": true,
+
+	"hideStoryMode": true,
+	"hideFreeplay": false
+}

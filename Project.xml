@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<!-- _________________________ Application Settings _________________________ -->
+
+	<app title="Friday Night Funkin': VS Null DEMO" file="VSNull" packageName="com.memehoovy.vsnull" package="com.memehoovy.vsnull" main="Main" version="0.2.8" company="MemeHoovy" />
+	<app preloader="flixel.system.FlxPreloader" />
+
+	<!-- NOTE TO SELF: DISABLE THIS IF ISSUES ARE FOUND -->
+	<haxedef name="LINC_LUA_RELATIVE_DYNAMIC_LIB"/> <!-- stable luas PUT AFTER FIRST LINE WITH APP NAME AND ETC -->
+
+	<!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
+	<set name="SWF_VERSION" value="11.8" />
+
+	<!-- ____________________________ Window Settings ___________________________ -->
+
+	<!--These window settings apply to all targets-->
+	<!-- Note this can cause weird screen issues on certain platforms if you have flixel 5+-->
+	<window width="1280" height="720" fps="" background="#000000" hardware="true" vsync="false" />
+
+	<!--HTML5-specific-->
+	<window if="html5" resizable="true" vsync="false" />
+
+	<!--Desktop-specific-->
+	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false"/>
+
+	<!--Mobile-specific-->
+	<window if="mobile" orientation="landscape" fullscreen="true" resizable="false" allow-shaders="true" require-shaders="true" allow-high-dpi="true" />
+
+	<!-- _____________________________ Path Settings ____________________________ -->
+
+	<set name="BUILD_DIR" value="export/debug" if="debug" />
+	<set name="BUILD_DIR" value="export/release" unless="debug" />
+	<set name="BUILD_DIR" value="export/noarch" if="noarchoutput" />
+	<set name="BUILD_DIR" value="export/32" if="32output" />
+	<set name="BUILD_DIR" value="export/64" if="64output" />
+	<set name="BUILD_DIR" value="export/armv7" if="armv7output" />
+	<set name="BUILD_DIR" value="export/arm64" if="arm64output" />
+
+	<classpath name="source" />
+	
+	<assets path="mobile" rename="assets/mobile" if="mobileC || mobileCweb" />
+	
+	<!-- PSYCH ENGINE CUSTOMIZATION -->
+	<define name="MODS_ALLOWED" if="desktop || mobile" />
+	<define name="HSCRIPT_ALLOWED" />
+	<define name="LUA_ALLOWED" if="cpp" unless="nolua" />
+	<define name="VIDEOS_ALLOWED" if="windows || linux || android cpp vlcvideo" unless="32bits || VIDEOVIEW" />
+	<define name="DISCORD_ALLOWED" if="desktop cpp || android" />
+	<define name="SHADERS_ALLOWED" unless="flash" />
+	<!--<define name="VIDEOVIEW" if="android" />-->
+
+	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
+	<assets path="assets/preload" rename="assets" exclude="*.mp3"  unless="web"/>
+
+	<define name="PRELOAD_ALL" unless="web" />
+	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL"/>
+	
+	<library name="videos"        preload="true" />
+	<section if="PRELOAD_ALL">
+		<library name="songs"         preload="true" />
+		<library name="shared"        preload="true" />
+	</section>
+	
+	<section if="NO_PRELOAD_ALL">
+		<library name="songs"         preload="true" if="web"/>
+		<library name="songs"         preload="false" unless="web"/>
+		<library name="shared"        preload="false" />
+	</section>
+	
+	<assets path="assets/videos"        library="videos"        if="VIDEOS_ALLOWED"/>
+	<assets path="assets/songs"         library="songs"         exclude="*.ogg" if="web"/>
+	<assets path="assets/songs"         library="songs"         exclude="*.mp3" unless="web"/>
+	<assets path="assets/shared"        library="shared"        exclude="*.ogg" if="web"/>
+	<assets path="assets/shared"        library="shared"        exclude="*.mp3" unless="web"/>
+
+	<assets path='example_mods' rename='mods' embed='false' if="MODS_ALLOWED"/>
+
+	<assets path="assets/fonts" />
+	<!-- _______________________________ Libraries ______________________________ -->
+
+	<haxelib name="flixel" />
+	<haxedev set='webgl' />
+
+	<haxelib name="hxlua" if="LUA_ALLOWED"/>
+	<haxelib name="hxCodec" if="VIDEOS_ALLOWED"/>
+	<haxelib name="extension-videoview" if="VIDEOVIEW" />
+	<haxelib name="hxjsonast" if="DISCORD_ALLOWED"/>
+	<haxelib name="hxdiscord_rpc" if="DISCORD_ALLOWED desktop"/>
+	<haxelib name="extension-kizzyrpc" if="DISCORD_ALLOWED android" />
+	<haxelib name="extension-androidtools" if="android" />
+
+	<!--In case you want to use the addons package-->
+	<haxelib name="flixel-addons" />
+	<haxelib name="hscript" if="HSCRIPT_ALLOWED" />
+	<define name="hscriptPos" if="HSCRIPT_ALLOWED" />
+
+	<!--In case you want to use the ui package-->
+	<haxelib name="flixel-ui" />
+
+	<!-- Enables a terminal log prompt on debug builds -->
+	<haxelib name="hxcpp-debug-server" if="debug"/>
+
+	<!-- ______________________________ Haxedefines _____________________________ -->
+
+	<!--Disable the Flixel core focus lost screen-->
+	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
+
+	<!-- Show debug traces for hxCodec -->
+	<haxedef name="HXC_DEBUG_TRACE" if="debug" />
+
+	<!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
+	<haxedef name="FLX_NO_DEBUG" unless="debug" />
+
+	<!--Enable this for Nape release builds for a serious peformance improvement-->
+	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
+
+	<!--Allow working memory greater than 1 Gig-->
+	<!--<haxedef name="HXCPP_GC_BIG_BLOCKS"/>-->
+
+	<!--Always enable Null Object Reference check-->
+	<haxedef name="HXCPP_CHECK_POINTER" />
+	<haxedef name="HXCPP_STACK_LINE" />
+	<haxedef name="HXCPP_STACK_TRACE" />
+
+	<section if="android">
+		<!-- Whatever you want im tired uninstall and install all time -->
+		<certificate path="key.keystore" password="nullfunni" alias="null" alias-password="nullfunni" unless="debug"/>
+		<config>
+		<!--Gradle-->
+		<!--<android gradle-version="7.4.2" gradle-plugin="7.3.1" />--> <!-- ENABLE THIS IF YOU HAVE ISSUES AT COMPILE -->
+
+		<!--Target SDK-->
+		<android min-sdk-version="16" target-sdk-version="29" max-sdk-version="33" if="${lime &lt; 8.1.0}"/>
+		</config>
+	</section>
+
+	<section if="ios">
+		<!--Dependency--> 
+		<dependency name="Metal.framework" if="${lime &lt; 8.0.0}" />
+	</section>
+
+	<haxedef name="no-deprecation-warnings" unless="debug" />
+
+	<!-- fix for macros -->
+	<haxeflag name="--macro" value="allowPackage('flash')" />
+	<haxeflag name="--macro" value="include('my.pack')" />
+
+	<!-- _________________________________ Custom _______________________________ -->
+
+	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
+	
+	<icon path="art/icon16.png" size='16'/>
+	<icon path="art/icon32.png" size='32'/>
+	<icon path="art/icon64.png" size='64'/>
+	<icon path="art/iconOG.png" />
+</project>

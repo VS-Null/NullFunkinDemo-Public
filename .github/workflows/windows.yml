@@ -1,0 +1,67 @@
+name: Windows Build CI
+
+on:
+  # I not want build every push and pull requests. (for now) - mcagabe19
+  # push:
+    # branches: [ main ]
+  # pull_request:
+    # branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  Windows32:
+    name: Windows32
+    runs-on: windows-${{ matrix.version }}
+    strategy:
+      matrix:
+        build: [release]
+        version: [2019]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.2.0
+      - name: Install Libraries
+        run: |
+          haxelib setup C:/haxelib
+          haxelib install hmm
+          haxelib run hmm install
+          haxelib set hxcpp 4.2.1
+        shell: cmd
+      - name: Build
+        run: haxelib run lime build windows -${{ matrix.build }} -32 -D HXCPP_M32 -D 32bits
+      - name: Publish Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: buildWindowsServer${{ matrix.version }}-32-${{ matrix.build }}
+          path: export/${{ matrix.build }}/windows/bin
+  Windows64:
+    name: Windows64
+    runs-on: windows-${{ matrix.version }}
+    strategy:
+      matrix:
+        build: [release]
+        version: [2019]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.2.0
+      - name: Install Libraries
+        run: |
+          haxelib setup C:/haxelib
+          haxelib install hmm
+          haxelib run hmm install
+          haxelib set hxcpp 4.2.1
+        shell: cmd
+      - name: Build
+        run: haxelib run lime build windows -${{ matrix.build }} -64 -D HXCPP_M64
+      - name: Publish Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: buildWindowsServer${{ matrix.version }}-64-${{ matrix.build }}
+          path: export/${{ matrix.build }}/windows/bin

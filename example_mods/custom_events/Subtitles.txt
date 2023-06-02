@@ -1,0 +1,2 @@
+Value 1: Text
+Value 2: Color (use a hex code, ex FFFFFF)

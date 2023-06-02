@@ -1,0 +1,67 @@
+name: Linux Build CI
+
+on:
+  # I not want build every push and pull requests. (for now) - mcagabe19
+  # push:
+    # branches: [ main ]
+  # pull_request:
+    # branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  Linux32:
+    name: Ubuntu32
+    runs-on: ubuntu-${{ matrix.version }}
+    strategy:
+      matrix:
+        build: [release]
+        version: [20.04, 22.04]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.2.0
+      - name: Install Libraries
+        run: |
+          sudo apt-get install gcc-multilib g++-multilib
+          haxelib setup ~/haxelib
+          haxelib install hmm
+          haxelib run hmm install
+          haxelib set hxcpp 4.2.1
+      - name: Build
+        run: haxelib run lime build Project.xml linux -${{ matrix.build }} -32 -D NO_PRECOMPILED_HEADERS -D 32bits
+      - name: Publish Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: buildUbuntu${{ matrix.version }}-32-${{ matrix.build }}
+          path: 'export/${{ matrix.build }}/linux/bin'
+  Linux64:
+    name: Ubuntu64
+    runs-on: ubuntu-${{ matrix.version }}
+    strategy:
+      matrix:
+        build: [release]
+        version: [20.04, 22.04]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.2.0
+      - name: Install Libraries
+        run: |
+          sudo apt-get install libvlc-dev libvlccore-dev
+          haxelib setup ~/haxelib
+          haxelib install hmm
+          haxelib run hmm install
+          haxelib set hxcpp 4.2.1
+      - name: Build
+        run: haxelib run lime build Project.xml linux -${{ matrix.build }} -64 -D NO_PRECOMPILED_HEADERS
+      - name: Publish Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: buildUbuntu${{ matrix.version }}-64-${{ matrix.build }}
+          path: 'export/${{ matrix.build }}/linux/bin'

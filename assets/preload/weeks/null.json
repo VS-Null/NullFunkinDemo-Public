@@ -1,0 +1,32 @@
+{
+	"songs": [
+		[
+			"First-encounter",
+			"null",
+			[
+				60,
+				60,
+				60
+			]
+		]
+	],
+	"hiddenUntilUnlocked": false,
+	"hideFreeplay": false,
+	"weekBackground": "stage",
+	"difficulties": "Hard",
+	"weekCharacters": [
+		"null",
+		"bf",
+		"gf"
+	],
+	"storyName": "the forest",
+	"weekName": "Null Week",
+	"freeplayColor": [
+		146,
+		113,
+		253
+	],
+	"hideStoryMode": false,
+	"weekBefore": "bonus",
+	"startUnlocked": true
+}

@@ -1,0 +1,122 @@
+  Android-X86:
+    name: Android X86
+    runs-on: ubuntu-${{ matrix.version }}
+    strategy:
+      matrix:
+        build: [release]
+        version: [20.04]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@main
+        id: setup-ndk
+        with:
+          ndk-version: r21e
+      - name: Setup Java JDK
+        uses: actions/setup-java@main
+        with:
+          distribution: zulu
+          java-version: 11
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@main
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.2.5
+      - name: Install Libraries
+        run: |
+          haxelib setup ~/haxelib
+          haxelib install lime
+          haxelib install openfl
+          haxelib install hxcpp 4.2.1
+          haxelib --never install flixel
+          haxelib install flixel-ui
+          haxelib install flixel-addons
+          haxelib install hscript
+          haxelib git extension-videoview https://github.com/mcagabe19-stuff/extension-videoview
+          haxelib git linc_luajit https://github.com/sirox228/linc_luajit
+          haxelib git extension-androidtools https://github.com/MAJigsaw77/extension-androidtools
+          haxelib git extension-videoview https://github.com/mcagabe19-stuff/extension-videoview
+      - name: Setup Lime
+        run: |
+          haxelib run lime setup -alias -y
+          haxelib run lime config ANDROID_SDK $ANDROID_HOME
+          haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_HOME
+          haxelib run lime config JAVA_HOME $JAVA_HOME
+          haxelib run lime config ANDROID_SETUP true
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+      - name: Build
+        run: |
+          mkdir export && mkdir export/release && mkdir export/release/android && mkdir export/release/android/obj && touch export/release/android/obj/libApplicationMain-v7.so && sudo chmod 777 export/release/android/obj/libApplicationMain-v7.so
+          haxelib run lime build android -D VIDEOVIEW -D NO_PRECOMPILED_HEADERS -${{ matrix.build }} -32 -D HXCPP_X86
+        env:
+          cert_pass: nullfunni
+          cert_alias_pass: nullfunni
+      - name: Publish Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: buildAndroid-32-${{ matrix.build }}
+          path: export/${{ matrix.build }}/android/bin/app/build/outputs/apk/${{ matrix.build }}/*.apk
+  Android-X86_64:
+    name: Android X86_64
+    runs-on: ubuntu-${{ matrix.version }}
+    strategy:
+      matrix:
+        build: [release]
+        version: [20.04]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@main
+        id: setup-ndk
+        with:
+          ndk-version: r21e
+      - name: Setup Java JDK
+        uses: actions/setup-java@main
+        with:
+          distribution: zulu
+          java-version: 11
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@main
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.2.5
+      - name: Install Libraries
+        run: |
+          haxelib setup ~/haxelib
+          haxelib install lime
+          haxelib install openfl
+          haxelib install hxcpp 4.2.1
+          haxelib --never install flixel
+          haxelib install flixel-ui
+          haxelib install flixel-addons
+          haxelib install hscript
+          haxelib git extension-videoview https://github.com/mcagabe19-stuff/extension-videoview
+          haxelib git linc_luajit https://github.com/sirox228/linc_luajit
+          haxelib git extension-androidtools https://github.com/MAJigsaw77/extension-androidtools
+          haxelib git extension-videoview https://github.com/mcagabe19-stuff/extension-videoview
+      - name: Setup Lime
+        run: |
+          haxelib run lime setup -alias -y
+          haxelib run lime config ANDROID_SDK $ANDROID_HOME
+          haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_HOME
+          haxelib run lime config JAVA_HOME $JAVA_HOME
+          haxelib run lime config ANDROID_SETUP true
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+      - name: Build
+        run: |
+          mkdir export && mkdir export/release && mkdir export/release/android && mkdir export/release/android/obj && touch export/release/android/obj/libApplicationMain-v7.so && sudo chmod 777 export/release/android/obj/libApplicationMain-v7.so
+          haxelib run lime build android -${{ matrix.build }} -64 -D HXCPP_X86_64 -D VIDEOVIEW 
+        env:
+          cert_pass: nullfunni
+          cert_alias_pass: nullfunni
+      - name: Publish Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: buildAndroid-64-${{ matrix.build }}
+          path: export/${{ matrix.build }}/android/bin/app/build/outputs/apk/${{ matrix.build }}/*.apk

@@ -1,0 +1,40 @@
+name: Mac Build CI
+
+on:
+  # I not want build every push and pull requests. (for now) - mcagabe19
+  # push:
+    # branches: [ main ]
+  # pull_request:
+    # branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  Mac:
+    name: MacOS
+    runs-on: macos-${{ matrix.version }}
+    strategy:
+      matrix:
+        build: [release]
+        version: [11, 12, 13]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.2.0
+      - name: Install Libraries
+        run: |
+          haxelib setup ~/haxelib
+          haxelib install hmm
+          haxelib run hmm install
+          haxelib remove hxCodec
+          haxelib git hxCodec https://github.com/polybiusproxy/hxCodec
+          haxelib set hxcpp 4.2.1
+      - name: Build
+        run: haxelib run lime build mac -${{ matrix.build }} -64
+      - name: Publish Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: buildMac-${{ matrix.version }}-64-${{ matrix.build }}
+          path: 'export/${{ matrix.build }}/macos/bin'
